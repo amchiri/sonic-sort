@@ -10,7 +10,7 @@ from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-AUDIO_EXTENSIONS = {".mp3", ".flac", ".m4a", ".ogg", ".opus", ".wav", ".aiff"}
+AUDIO_EXTENSIONS = {".mp3", ".flac", ".m4a", ".aac", ".ogg", ".opus", ".wav", ".aiff"}
 
 
 @dataclass
@@ -22,10 +22,6 @@ class AudioFile:
     def __post_init__(self):
         self.extension = self.path.suffix.lower()
         self.size_bytes = self.path.stat().st_size
-
-    @property
-    def relative_path(self) -> str:
-        return str(self.path)
 
     def __repr__(self) -> str:
         return f"AudioFile({self.path.name})"

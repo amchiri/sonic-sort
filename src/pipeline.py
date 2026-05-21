@@ -42,7 +42,6 @@ class PipelineStats:
     tags_updated: int = 0
     files_renamed: int = 0
     errors: int = 0
-    skipped: int = 0
 
 
 class SonicSortPipeline:

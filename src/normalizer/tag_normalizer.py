@@ -152,9 +152,11 @@ class TagNormalizer:
         audio["aART"] = meta.album_artist
         audio["\xa9alb"] = meta.album
         audio["\xa9day"] = meta.year
-        audio["trkn"] = [(meta.track_number, meta.track_total)]
+        track_total = meta.track_total or meta.track_number
+        audio["trkn"] = [(meta.track_number, track_total)]
         if meta.disc_number:
-            audio["disk"] = [(meta.disc_number, meta.disc_total)]
+            disc_total = meta.disc_total or meta.disc_number
+            audio["disk"] = [(meta.disc_number, disc_total)]
         audio.save()
         return True
 

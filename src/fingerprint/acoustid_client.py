@@ -1,20 +1,16 @@
 """Génération d'empreinte audio via fpcalc + soumission à AcoustID."""
 from __future__ import annotations
 
-import subprocess
 import time
 from pathlib import Path
 from typing import Optional
 
 import acoustid
-import requests
 
 from src.utils.config import config
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-ACOUSTID_LOOKUP_URL = "https://api.acoustid.org/v2/lookup"
 
 
 class AcoustIDClient:

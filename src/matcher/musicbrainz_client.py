@@ -1,7 +1,6 @@
 """Interrogation MusicBrainz pour récupérer les métadonnées enrichies."""
 from __future__ import annotations
 
-import time
 from typing import Optional
 
 import musicbrainzngs as mb
@@ -16,21 +15,13 @@ class MusicBrainzClient:
     def __init__(self):
         mb.set_useragent(config.mb_app_name, config.mb_app_version, config.mb_contact)
         mb.set_rate_limit(limit_or_interval=config.mb_rate_limit)
-        self._last_call = 0.0
-
-    def _throttle(self) -> None:
-        elapsed = time.time() - self._last_call
-        if elapsed < config.mb_rate_limit:
-            time.sleep(config.mb_rate_limit - elapsed)
-        self._last_call = time.time()
 
     def get_recording(self, recording_id: str) -> Optional[dict]:
         """Récupère une recording MusicBrainz par son MBID."""
-        self._throttle()
         try:
             result = mb.get_recording_by_id(
                 recording_id,
-                includes=["artists", "releases", "release-groups"],
+                includes=["artists", "releases", "media"],
             )
             return result.get("recording")
         except mb.ResponseError as exc:
@@ -42,7 +33,6 @@ class MusicBrainzClient:
 
     def search_recording(self, title: str, artist: str = "", album: str = "") -> list[dict]:
         """Recherche textuelle dans MusicBrainz."""
-        self._throttle()
         query_parts = [f'recording:"{title}"']
         if artist:
             query_parts.append(f'artist:"{artist}"')

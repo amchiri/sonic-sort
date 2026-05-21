@@ -1,0 +1,17 @@
+services:
+  sonic-sort:
+    build: .
+    image: sonic-sort:latest
+    container_name: sonic-sort
+    environment:
+      - ACOUSTID_API_KEY=${ACOUSTID_API_KEY}
+      - MB_APP_NAME=SonicSort
+      - MB_APP_VERSION=1.0.0
+      - MB_CONTACT=${MB_CONTACT}
+      - MB_RATE_LIMIT_DELAY=1.0
+      - ACOUSTID_CONFIDENCE_THRESHOLD=0.8
+      - PLEX_URL=${PLEX_URL:-}
+      - PLEX_TOKEN=${PLEX_TOKEN:-}
+    volumes:
+      - ${MUSIC_PATH:-./music}:/music
+    command: ["run", "/music", "--plex-scan"]

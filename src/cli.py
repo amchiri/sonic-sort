@@ -6,13 +6,10 @@ from pathlib import Path
 
 import click
 from rich.table import Table
-from rich.console import Console
 
 from src.pipeline import SonicSortPipeline
 from src.plex.plex_trigger import PlexTrigger
-from src.utils.logger import get_logger, console
-
-logger = get_logger(__name__)
+from src.utils.logger import console
 
 
 @click.group()
@@ -120,7 +117,7 @@ def _export_report(results, path: Path) -> None:
                 "errors": r.errors,
             }
         )
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def _meta_to_dict(meta) -> dict:
@@ -137,3 +134,7 @@ def _meta_to_dict(meta) -> dict:
         "genre": meta.genre,
         "has_cover": meta.has_cover,
     }
+
+
+if __name__ == "__main__":
+    main()

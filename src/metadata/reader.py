@@ -16,6 +16,18 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
+def _parse_num_pair(raw: str) -> tuple[int, int]:
+    if not raw:
+        return 0, 0
+    parts = raw.split("/")
+    try:
+        num = int(parts[0])
+        tot = int(parts[1]) if len(parts) > 1 else 0
+        return num, tot
+    except ValueError:
+        return 0, 0
+
+
 @dataclass
 class TrackMetadata:
     path: Path
@@ -84,16 +96,7 @@ class MetadataReader:
 
         def get_num(tag: str) -> tuple[int, int]:
             val = tags.get(tag)
-            if not val:
-                return 0, 0
-            raw = str(val.text[0])
-            parts = raw.split("/")
-            try:
-                num = int(parts[0])
-                tot = int(parts[1]) if len(parts) > 1 else 0
-                return num, tot
-            except ValueError:
-                return 0, 0
+            return _parse_num_pair(str(val.text[0])) if val else (0, 0)
 
         track_num, track_tot = get_num("TRCK")
         disc_num, disc_tot = get_num("TPOS")
@@ -126,18 +129,8 @@ class MetadataReader:
             vals = tags.get(key.lower()) or tags.get(key.upper()) or []
             return vals[0] if vals else ""
 
-        def get_num(key: str) -> tuple[int, int]:
-            raw = get(key)
-            if not raw:
-                return 0, 0
-            parts = raw.split("/")
-            try:
-                return int(parts[0]), int(parts[1]) if len(parts) > 1 else 0
-            except ValueError:
-                return 0, 0
-
-        track_num, track_tot = get_num("tracknumber")
-        disc_num, disc_tot = get_num("discnumber")
+        track_num, track_tot = _parse_num_pair(get("tracknumber"))
+        disc_num, disc_tot = _parse_num_pair(get("discnumber"))
 
         return TrackMetadata(
             path=path,
@@ -208,18 +201,8 @@ class MetadataReader:
             vals = tags.get(key.lower()) or tags.get(key.upper()) or []
             return vals[0] if vals else ""
 
-        def get_num(key: str) -> tuple[int, int]:
-            raw = get(key)
-            if not raw:
-                return 0, 0
-            parts = raw.split("/")
-            try:
-                return int(parts[0]), int(parts[1]) if len(parts) > 1 else 0
-            except ValueError:
-                return 0, 0
-
-        track_num, track_tot = get_num("tracknumber")
-        disc_num, disc_tot = get_num("discnumber")
+        track_num, track_tot = _parse_num_pair(get("tracknumber"))
+        disc_num, disc_tot = _parse_num_pair(get("discnumber"))
 
         return TrackMetadata(
             path=path,
