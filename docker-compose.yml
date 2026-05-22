@@ -12,6 +12,8 @@ services:
       - ACOUSTID_CONFIDENCE_THRESHOLD=0.8
       - PLEX_URL=${PLEX_URL:-}
       - PLEX_TOKEN=${PLEX_TOKEN:-}
+      - JELLYFIN_URL=${JELLYFIN_URL:-}
+      - JELLYFIN_API_KEY=${JELLYFIN_API_KEY:-}
     volumes:
       - ${MUSIC_PATH:-./music}:/music
     command: ["run", "/music", "--plex-scan"]

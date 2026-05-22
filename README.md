@@ -1,8 +1,8 @@
 # SonicSort
 
-Optimiseur de métadonnées musicales pour Plex Media Server.
+Optimiseur de métadonnées musicales pour **Plex** et **Jellyfin**.
 
-Lit les tags audio existants, identifie chaque morceau via empreinte acoustique (AcoustID + MusicBrainz), normalise titres/artistes/albums, puis range les fichiers dans la structure recommandée par Plex : `Artist/Album (Year)/[Disc-]Track - Title.ext`.
+Lit les tags audio existants, identifie chaque morceau via empreinte acoustique (AcoustID + MusicBrainz), normalise titres/artistes/albums, puis range les fichiers dans la structure standard : `Artist/Album (Year)/[Disc-]Track - Title.ext` (compatible Plex & Jellyfin).
 
 ## Fonctionnalités
 
@@ -12,7 +12,7 @@ Lit les tags audio existants, identifie chaque morceau via empreinte acoustique 
 - **Normalisation** : casse cohérente (`Title Case` qui respecte articles FR/EN), `feat.` unifié, accents nettoyés
 - **Renommage Plex-friendly** : caractères illégaux Windows/Linux échappés
 - **Mode dry-run** : prévisualise sans modifier
-- **Trigger Plex auto** après traitement
+- **Trigger Plex & Jellyfin auto** après traitement
 - **Rapport JSON** exportable
 
 ## Pipeline
@@ -87,6 +87,8 @@ MB_APP_VERSION=1.0.0
 MB_CONTACT=your@email.com      # obligatoire (politesse MusicBrainz)
 PLEX_URL=http://localhost:32400
 PLEX_TOKEN=                     # optionnel, pour --plex-scan
+JELLYFIN_URL=http://localhost:8096
+JELLYFIN_API_KEY=               # optionnel, pour --jellyfin-scan (Dashboard → API Keys)
 MB_RATE_LIMIT_DELAY=1.0
 ACOUSTID_CONFIDENCE_THRESHOLD=0.8
 ```
@@ -103,6 +105,12 @@ sonic-sort run /chemin/musique
 # Avec scan Plex automatique après traitement
 sonic-sort run /chemin/musique --plex-scan --plex-section 1
 
+# Avec scan Jellyfin (refresh global)
+sonic-sort run /chemin/musique --jellyfin-scan
+
+# Jellyfin library spécifique
+sonic-sort run /chemin/musique --jellyfin-scan --jellyfin-library <library_id>
+
 # Rapport JSON
 sonic-sort run /chemin/musique --report report.json
 
@@ -114,6 +122,9 @@ sonic-sort scan /chemin/musique
 
 # Liste sections Plex
 sonic-sort plex-sections
+
+# Liste libraries Jellyfin
+sonic-sort jellyfin-libraries
 ```
 
 Équivalent sans entry point :
@@ -134,6 +145,7 @@ src/
 ├── normalizer/tag_normalizer.py    # Fusion + casse + écriture
 ├── renamer/file_renamer.py     # Build target path Plex + move
 ├── plex/plex_trigger.py        # Optional: trigger Plex scan
+├── jellyfin/jellyfin_trigger.py # Optional: trigger Jellyfin scan
 └── utils/{config,logger}.py
 ```
 

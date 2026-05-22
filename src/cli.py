@@ -9,13 +9,14 @@ from rich.table import Table
 
 from src.pipeline import SonicSortPipeline
 from src.plex.plex_trigger import PlexTrigger
+from src.jellyfin.jellyfin_trigger import JellyfinTrigger
 from src.utils.logger import console
 
 
 @click.group()
 @click.version_option("1.0.0", prog_name="sonic-sort")
 def main():
-    """SonicSort — Optimiseur de bibliothèque musicale pour Plex Media Server."""
+    """SonicSort — Optimiseur de bibliothèque musicale pour Plex / Jellyfin."""
     pass
 
 
@@ -27,9 +28,12 @@ def main():
 @click.option("--min-missing", default=1, show_default=True, help="Nombre minimum de champs manquants pour déclencher le fingerprint")
 @click.option("--plex-scan", is_flag=True, help="Déclenche un scan Plex après traitement")
 @click.option("--plex-section", default=1, show_default=True, help="ID de section Plex à scanner")
+@click.option("--jellyfin-scan", is_flag=True, help="Déclenche un scan Jellyfin après traitement")
+@click.option("--jellyfin-library", default="", help="ID library Jellyfin (vide = refresh global)")
 @click.option("--report", default=None, help="Exporte un rapport JSON vers ce fichier")
-def run(input_dir, output, dry_run, no_fingerprint, min_missing, plex_scan, plex_section, report):
-    """Analyse et corrige la bibliothèque musicale pour Plex."""
+def run(input_dir, output, dry_run, no_fingerprint, min_missing,
+        plex_scan, plex_section, jellyfin_scan, jellyfin_library, report):
+    """Analyse et corrige la bibliothèque musicale pour Plex / Jellyfin."""
 
     if dry_run:
         console.print("[yellow bold]Mode DRY-RUN activé — aucun fichier ne sera modifié[/yellow bold]\n")
@@ -48,8 +52,11 @@ def run(input_dir, output, dry_run, no_fingerprint, min_missing, plex_scan, plex
         _export_report(results, Path(report))
         console.print(f"\nRapport exporté : [cyan]{report}[/cyan]")
 
-    if plex_scan and not dry_run:
-        PlexTrigger().trigger_scan(section_id=plex_section)
+    if not dry_run:
+        if plex_scan:
+            PlexTrigger().trigger_scan(section_id=plex_section)
+        if jellyfin_scan:
+            JellyfinTrigger().trigger_scan(library_id=jellyfin_library)
 
 
 @main.command()
@@ -99,6 +106,17 @@ def plex_sections():
         return
     for s in sections:
         console.print(f"  [{s.get('key')}] {s.get('title')} — {s.get('type')}")
+
+
+@main.command()
+def jellyfin_libraries():
+    """Liste les libraries Jellyfin (nécessite JELLYFIN_URL et JELLYFIN_API_KEY)."""
+    libs = JellyfinTrigger().list_libraries()
+    if not libs:
+        console.print("[red]Aucune library trouvée ou Jellyfin non configuré[/red]")
+        return
+    for lib in libs:
+        console.print(f"  [{lib.get('Id')}] {lib.get('Name')} — {lib.get('CollectionType', 'mixed')}")
 
 
 def _export_report(results, path: Path) -> None:

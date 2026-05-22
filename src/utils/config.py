@@ -17,6 +17,8 @@ class Config:
     )
     plex_url: str = field(default_factory=lambda: os.getenv("PLEX_URL", ""))
     plex_token: str = field(default_factory=lambda: os.getenv("PLEX_TOKEN", ""))
+    jellyfin_url: str = field(default_factory=lambda: os.getenv("JELLYFIN_URL", ""))
+    jellyfin_api_key: str = field(default_factory=lambda: os.getenv("JELLYFIN_API_KEY", ""))
 
 
 config = Config()
